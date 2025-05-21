@@ -10,7 +10,9 @@ create = async (req, res) => {
     res.status(500).json({ error: "Произошла ошибка на сервере" });
   }
 };
-
+/* TODO: Переделать
+ * Получить список обращений с возможность фильтрации по конкретной дате и по диапазону дат.
+ */
 getAll = async (req, res) => {
   try {
     const complaints = await Complaint.findAll();

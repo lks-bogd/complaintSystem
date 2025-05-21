@@ -23,7 +23,7 @@ const Complaint = sequelize.define(
         model: "ComplaintStatuses",
         key: "id",
       },
-      defaultValue: 1,
+      defaultValue: 1, // Нужно переделать так, чтобы брал не индекс, а по name
       allowNull: false,
     },
     solutionText: {

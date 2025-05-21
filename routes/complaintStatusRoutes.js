@@ -5,9 +5,11 @@ const {
   update,
 } = require("../controllers/complaintStatusController.js");
 
+const validateBodyFields = require("../middleware/validateBodyFields.js");
+
 const complaintStatusRouter = express.Router();
 
-complaintStatusRouter.post("/", create);
+complaintStatusRouter.post("/", validateBodyFields(["name", "alias"]), create);
 complaintStatusRouter.put("/:id", update);
 
 module.exports = complaintStatusRouter;

@@ -9,9 +9,11 @@ const {
   getAll,
 } = require("../controllers/complaintController.js");
 
+const validateBodyFields = require("../middleware/validateBodyFields.js");
+
 const complaintRouter = express.Router();
 
-complaintRouter.post("/", create);
+complaintRouter.post("/", validateBodyFields(["topic", "text"]), create);
 complaintRouter.get("/all", getAll);
 complaintRouter.put("/:id/take_in_work", takeInWork);
 complaintRouter.put("/:id/resolve", resolveComplaint);
