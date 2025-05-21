@@ -3,7 +3,16 @@ const { Complaint, ComplaintStatus } = require("../models/index.js");
 create = async (req, res) => {
   try {
     const { topic, text } = req.body;
-    const complaint = await Complaint.create({ topic, text });
+    const status = await ComplaintStatus.findOne({ where: { name: "new" } });
+    if (!status) {
+      return res.status(400).json({ error: `Статус "new" не найден` });
+    }
+
+    const complaint = await Complaint.create({
+      topic,
+      text,
+      statusId: status.id,
+    });
     res.status(201).json(complaint);
   } catch (e) {
     console.error(e);
@@ -13,10 +22,56 @@ create = async (req, res) => {
 /* TODO: Переделать
  * Получить список обращений с возможность фильтрации по конкретной дате и по диапазону дат.
  */
+
 getAll = async (req, res) => {
   try {
-    const complaints = await Complaint.findAll();
-    res.status(200).json(complaints);
+    const { fromDate, toDate, page = 1, limit = 10 } = req.query;
+    const where = {};
+
+    if (fromDate && toDate) {
+      const startDate = new Date(fromDate);
+      const endDate = new Date(toDate);
+
+      if (isNaN(startDate) || isNaN(endDate)) {
+        return res.status(400).json({
+          error: "Некорректные даты",
+        });
+      }
+
+      where.createdAt = {
+        [Complaint.Op.between]: [startDate, endDate],
+      };
+    }
+
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+    const offset = (pageNumber - 1) * limitNumber;
+
+    if (
+      isNaN(pageNumber) ||
+      isNaN(limitNumber) ||
+      pageNumber < 1 ||
+      limitNumber < 1
+    ) {
+      return res.status(400).json({
+        error: 'Параметры "page" и "limit" должны быть положительными',
+      });
+    }
+
+    const { count, rows } = await Complaint.findAndCountAll({
+      where: where,
+      include: [{ model: ComplaintStatus, as: "complaintStatus" }],
+      limit: limitNumber,
+      offset: offset,
+    });
+
+    res.status(200).json({
+      total: count,
+      page: pageNumber,
+      limit: limitNumber,
+      totalPages: Math.ceil(count / limitNumber),
+      data: rows,
+    });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Произошла ошибка на сервере" });

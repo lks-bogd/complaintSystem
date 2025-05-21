@@ -23,7 +23,6 @@ const Complaint = sequelize.define(
         model: "ComplaintStatuses",
         key: "id",
       },
-      defaultValue: 1, // Нужно переделать так, чтобы брал не индекс, а по name
       allowNull: false,
     },
     solutionText: {
@@ -43,5 +42,8 @@ const Complaint = sequelize.define(
     timestamps: true,
   }
 );
+
+Complaint.sequelize = sequelize;
+Complaint.Op = sequelize.Sequelize.Op;
 
 module.exports = Complaint;
