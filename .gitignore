@@ -1,0 +1,16 @@
+# Node.js
+node_modules/
+package-lock.json
+
+# .env файлы
+.env
+.env.local
+
+npm-debug.log*
+
+# Компиляторы и сборщики
+/dist/
+/build/
+
+# IDE и редакторы
+.vscode/
