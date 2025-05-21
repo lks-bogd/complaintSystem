@@ -38,6 +38,21 @@ getAll = async (req, res) => {
       where.createdAt = {
         [Complaint.Op.between]: [startDate, endDate],
       };
+    } else if (fromDate && !toDate) {
+      const date = new Date(fromDate);
+
+      if (isNaN(date)) {
+        return res.status(400).json({
+          error: "Некорректная дата",
+        });
+      }
+
+      where.createdAt = {
+        [Complaint.Op.between]: [
+          new Date(date.setHours(0, 0, 0, 0)),
+          new Date(date.setHours(23, 59, 59, 999)),
+        ],
+      };
     }
 
     const pageNumber = parseInt(page, 10);
@@ -60,6 +75,7 @@ getAll = async (req, res) => {
       include: [{ model: ComplaintStatus, as: "complaintStatus" }],
       limit: limitNumber,
       offset: offset,
+      order: [["id", "asc"]],
     });
 
     res.status(200).json({
